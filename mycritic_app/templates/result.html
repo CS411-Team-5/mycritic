@@ -1,0 +1,120 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<style>
+body {
+	background-color: #4286f4;
+}
+h1 {
+	margin:5px;
+	color: #FFBA73;
+	font-size: 300%;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+h2 {
+	margin-bottom:20px;
+	color: #FFF;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+#logo {
+	margin-top:20px;
+	margin-left:10px;
+    padding:0px;
+	height: auto;
+	width: 20%;
+	display:block;
+}
+button.btn-info {
+	margin:5px;
+}
+div.collapse {
+	margin:0px;
+}
+div.expand-area {
+	margin:10px;
+}
+div.result-container {
+	margin:10px;
+}
+div.back-button {
+	margin:10px;
+}
+#movie-poster {
+	max-height:auto;
+	width:100%;
+}
+#info {
+	margin:2px;
+}
+#content { 
+  margin:10px;
+  overflow:auto; 
+  width: 90%; 
+  -moz-border-radius:10px;
+  -webkit-border-radius:10px;
+  border-radius:10px;
+  background: #fff; /* fallback for browsers that don't understand rgba */
+  border: #solid 10px #000; /* fallback for browsers that don't understand rgba */
+  background-color: rgba(255,255,255,0.8);/* slighly transparent white */
+  border-color: rgba(0,0,0,0.2); /*Very transparent black*/
+} 
+#left, #right { 
+  margin:6px; 
+  padding: 1px; 
+} 
+#left { 
+	float:left;
+	width:16%
+}
+#right { 
+	float:right;
+    width:82% 
+} 
+#description {
+	margin:5px;
+	font-size: 140%;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}		 
+
+</style>
+{% load static %}
+<img id="logo" src="{% static 'images/mycriticlogo.png' %}" alt="mycritic_logo"/>
+<hr>
+<div class="expand-area">
+  <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#full">Expand Full JSON</button>
+  <div id="full" class="collapse">
+    {{ response }}
+  </div>
+  </br>
+  <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#clean">Expand Cleaned JSON</button>
+  <div id="clean" class="collapse">
+    {{ clean_response }}
+  </div>
+</div>
+<hr>
+<div class="result-container">
+	<h2>Here's what we found for "{{query}}":</h2>
+</div>
+{% for movie in clean_response %}
+<div id="content">
+  <div id="left">
+     <div id="poster"><img id="movie-poster" src="{{ movie.2 }}", alt="{{ movie.2 }}"/></div>
+  </div>
+
+  <div id="right">
+     <div id="info">
+		<h1>{{ movie.1 }}</h1>
+		</br>
+		<p id="description">{{ movie.3 }}<p>
+	</div>
+  </div>
+</div>
+</br>
+{% endfor %}
+
+</br>
+<div class="back-button">
+<a class="btn btn-warning btn-lg" href="{% url 'search' %}"><< Go Back to Search</button>
+</div>
+{% endblock %}
+</div>

@@ -1,0 +1,33 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<style>
+div {
+  position:absolute;
+  color:#fff;
+  top:50%;
+  left:50%;
+  padding:30px;
+  -ms-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translate(-50%,-50%);
+  transform: translate(-50%,-50%);
+}  
+img {
+	margin:auto;
+	margin-bottom: 30px;
+    padding:0px;
+	height: 50%;
+	width: 50%;
+	display:block;
+}
+</style>
+<div>
+	{% load static %}
+	<img src="{% static 'images/mycriticlogo.png' %}" alt="mycritic_logo"/>
+	  
+	  <form method="get" action="/mycritic_app/search" id="search">
+		<input name="q" type="text" size="40" placeholder="Search for a movie..." />
+	  </form>
+</div>
+
+{% endblock %}
