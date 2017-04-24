@@ -1,11 +1,33 @@
 import tmdbsimple as tmdb
 import os
-tmdb.API_KEY = os.environ['TMDB_KEY']
 
 from django.shortcuts import render
+from django.shortcuts import render_to_response
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.contrib.auth.forms import UserCreationForm
+from django.template.context_processors import csrf
 from mycritic_app.models import SearchCache   #####
 
+tmdb.API_KEY = os.environ['TMDB_KEY']
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/mycritic_app/accounts/register/complete')
+
+    else:
+        form = UserCreationForm()
+    token = {}
+    token.update(csrf(request))
+    token['form'] = form
+
+    return render_to_response('registration/registration_form.html', token)
+
+def registration_complete(request):
+    return render_to_response('registration/registration_complete.html')
 
 def fetch_tmdb(string):
     results = []
@@ -72,4 +94,5 @@ def result(request):
             'result.html',
             context={'query': query, 'response':response, 'clean_response':clean_response, 'verbose':verbose, 'source':'TMDB'},
         )
+
 
