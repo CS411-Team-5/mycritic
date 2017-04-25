@@ -5,21 +5,21 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from django.contrib.auth.forms import UserCreationForm
 from django.template.context_processors import csrf
-from mycritic_app.models import SearchCache   #####
+from mycritic_app.models import SearchCache
+from mycritic_app.forms import RegistrationForm
 
 tmdb.API_KEY = os.environ['TMDB_KEY']
 
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = RegistrationForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/mycritic_app/accounts/register/complete')
 
     else:
-        form = UserCreationForm()
+        form = RegistrationForm()
     token = {}
     token.update(csrf(request))
     token['form'] = form
