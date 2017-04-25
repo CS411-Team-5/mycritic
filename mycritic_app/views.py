@@ -34,9 +34,29 @@ def register(request):
 def registration_complete(request):
     return render_to_response('registration/registration_complete.html')
 
+def login(request):
+    if request.method == "POST":
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
+        user = auth.authenticate(username=username, password=password)
+
+        if user is not None:
+            auth.login(request, user)
+            return HttpResponseRedirect('/mycritic_app/logged_in')
+        else:
+            return HttpResponseRedirect('/mycritic_app/login_error')
+
+    else:
+        token = {}
+        token.update(csrf(request))
+        return render_to_response('registration/login.html', token)
+    
 def logged_in(request):
     return render_to_response('registration/logged_in.html',
                               {'username': request.user.username})
+
+def login_error(request):
+    return render_to_response('registration/login_error.html')
 
 def logout(request):
     auth.logout(request)

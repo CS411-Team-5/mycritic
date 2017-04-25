@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^register/complete/$', views.registration_complete, name='registration_complete'),
     # Auth-related URLs:
     url(r'^login/$', login, name='login'),
-    url(r'^logout/$', logout, name='logout'),
     url(r'^loggedin/$', views.logged_in, name='loggedin'),
+    url(r'^login_error/$', views.login_error, name='login_error'),
+    url(r'^logout/$', logout, name='logout'),
 ]
