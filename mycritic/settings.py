@@ -31,13 +31,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'mycritic_app.apps.MycriticAppConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mycritic_app.apps.MycriticAppConfig',
 ]
 
 MIDDLEWARE = [
@@ -120,3 +120,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+# Where users get redirected if they have not logged in
+
+LOGIN_REDIRECT_URL = '/mycritic_app/loggedin/'

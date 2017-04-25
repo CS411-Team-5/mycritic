@@ -11,12 +11,17 @@ from mycritic_app.forms import RegistrationForm
 
 tmdb.API_KEY = os.environ['TMDB_KEY']
 
+
+##########################
+# REGISTRATION AND LOGIN #
+##########################
+
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/mycritic_app/accounts/register/complete')
+            return HttpResponseRedirect('/mycritic_app/register/complete')
 
     else:
         form = RegistrationForm()
@@ -28,6 +33,19 @@ def register(request):
 
 def registration_complete(request):
     return render_to_response('registration/registration_complete.html')
+
+def logged_in(request):
+    return render_to_response('registration/logged_in.html',
+                              {'username': request.user.username})
+
+def logout(request):
+    auth.logout(request)
+    return render_to_response('registration/logged_out.html')
+
+
+######################
+# SEARCH AND RESULTS #
+######################
 
 def fetch_tmdb(string):
     results = []
