@@ -4,6 +4,7 @@ import os
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context_processors import csrf
+from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from mycritic_app.models import SearchCache
 from mycritic_app.forms import RegistrationForm, LoginForm
@@ -89,6 +90,7 @@ def fetch_tmdb(string):
                                 result['overview']]]
     return (response, clean_response)
 
+@login_required(login_url='/mycritic_app/login/')
 def search(request):
     """
     View function for search page of site.
@@ -100,6 +102,7 @@ def search(request):
         context={},
     )
 
+@login_required(login_url='/mycritic_app/login/')
 def result(request):
     """
     View function for search result page of site.
