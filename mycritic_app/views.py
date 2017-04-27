@@ -74,7 +74,7 @@ def login_error(request):
 
 def logout(request):
     auth.logout(request)
-    return render_to_response('registration/logged_out.html')
+    return HttpResponseRedirect('/mycritic_app/login')
 
 
 ######################
@@ -115,7 +115,7 @@ def search(request):
     # Render the HTML template search.html with the data in the context variable
     return render(
         request,
-        'search.html',
+        'base.html',
         context={'username': username, 'need_to_rate': need_to_rate, 'movies_to_rate': (5 - rated)},
     )
 
