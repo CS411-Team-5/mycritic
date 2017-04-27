@@ -115,7 +115,7 @@ def search(request):
     # Render the HTML template search.html with the data in the context variable
     return render(
         request,
-        'base.html',
+        'search.html',
         context={'username': username, 'need_to_rate': need_to_rate, 'movies_to_rate': (5 - rated)},
     )
 
@@ -124,6 +124,7 @@ def result(request):
     """
     View function for search result page of site.
     """
+    username = request.user.username
     query = request.GET.urlencode('search')[2:]
     query = query.replace("%20", " ")
     # If the query is in the database
@@ -133,7 +134,7 @@ def result(request):
         return render(
             request,
             'result.html',
-            context={'query': query, 'response':response, 'clean_response':response, 'verbose':'', 'source':'Local Database'},
+            context={'username': username, 'query': query, 'response':response, 'clean_response':response, 'verbose':'', 'source':'Local Database'},
         )
     else:
 
@@ -152,5 +153,5 @@ def result(request):
         return render(
             request,
             'result.html',
-            context={'query': query, 'response':response, 'clean_response':clean_response, 'verbose':verbose, 'source':'TMDB'},
+            context={'username': username, 'query': query, 'response':response, 'clean_response':clean_response, 'verbose':verbose, 'source':'TMDB'},
         )

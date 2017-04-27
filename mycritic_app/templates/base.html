@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <title>{% block title %}mycritic - Home{% endblock %}</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> -->
@@ -94,7 +95,7 @@
 		/* @end */
 
 		body {
-			background-color: #000;
+			background-color: #4286f4;
 			
 			font: 12px "Open Sans", "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
 			color: #9aa6af;
@@ -449,7 +450,7 @@
 	<!--	Add "slideRight" class to items that move right when viewing Nav Drawer  -->
 	<ul class="responsive">
 	  <li class="body-section">
-		<p class="placefiller">Body</p>
+		{% block content %}<p class="placefiller">Body</p>{% endblock %}
 	  </li>
 	</ul>
   </div>

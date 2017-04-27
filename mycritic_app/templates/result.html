@@ -1,17 +1,18 @@
-{% extends "base_generic.html" %}
-
+{% extends "base.html" %}
+{% block title %}mycritic - Search Results{% endblock %}
 {% block content %}
 <style>
 body {
 	background-color: #4286f4;
 }
-h1 {
+.body-section h1 {
 	margin:5px;
 	color: #FFBA73;
 	font-size: 300%;
 	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 h2 {
+	font-size:18px;
 	margin-bottom:20px;
 	color: #FFF;
 	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
@@ -49,7 +50,7 @@ div.back-button {
 #content { 
   margin:10px;
   overflow:auto; 
-  width: 90%; 
+  width: 98%; 
   -moz-border-radius:10px;
   -webkit-border-radius:10px;
   border-radius:10px;
@@ -77,22 +78,6 @@ div.back-button {
 }		 
 
 </style>
-{% load static %}
-<img id="logo" src="{% static 'images/mycriticlogo.png' %}" alt="mycritic_logo"/>
-<hr>
-<div class="expand-area">
-  <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#full">Expand Full JSON</button>
-  <div id="full" class="collapse">
-    {{ response }}
-  </div>
-  </br>
-  <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#clean">Expand Cleaned JSON</button>
-  <div id="clean" class="collapse">
-    {{ clean_response }}
-  </div>
-  <p>Data was fetched from {{ source }}</p>
-</div>
-<hr>
 <div class="result-container">
 	<h2>Here's what we found for "{{query}}":</h2>
 </div>
