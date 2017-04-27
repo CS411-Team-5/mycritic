@@ -5,7 +5,7 @@
   <h2>Registration</h2>
 
   <form action="/mycritic_app/register/" method="post">{% csrf_token %}
-    {{form.as_p}}
+    {{form.as_table}}
   <input type="submit" value="Register" />
 
   </form>

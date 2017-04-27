@@ -4,7 +4,8 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function () {
-			$('.message a').click(function(){
+			$('.message a').click(function(e){
+			   e.preventDefault();
 			   $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
 			});
 		});
@@ -64,7 +65,11 @@
 	  color: #4286f4;
 	  text-decoration: none;
 	}
+{% if login %}
 	.form .register-form {
+{% else %}
+	.form .login-form {
+{% endif %}
 	  display: none;
 	}
 	.container {
@@ -115,18 +120,32 @@
 <body>
 <div class="login-page">
   <div class="form">
-    <form class="register-form">
-      <input type="text" placeholder="username"/>
-	  <input type="text" placeholder="email address"/>
-      <input type="password" placeholder="password"/>
-	  <input type="password" placeholder="confirm password"/>
-      <button>create</button>
+    <form class="register-form" action="/mycritic_app/register/" method="post">{% csrf_token %}
+	  {{ register_form.non_field_errors }}
+	  {{ register_form.username.errors }}
+	  <label for="{{ register_form.username.id_for_label }}"></label>
+      <input type="text" placeholder="username" name="username" id="{{ register_form.username.id_for_label }}"/>
+	  {{ register_form.email.errors }}
+	  <label for="{{ register_form.email.id_for_label }}"></label>
+	  <input type="text" placeholder="email address" name="email" id="{{ register_form.email.id_for_label }}"/>
+	  {{ register_form.password1.errors }}      
+	  <label for="{{ register_form.password1.id_for_label }}"></label>
+	  <input type="password" placeholder="password" name="password1" id="{{ register_form.password1.id_for_label }}"/>
+	  {{ register_form.password2.errors }}
+	  <label for="{{ register_form.password2.id_for_label }}"></label>
+	  <input type="password" placeholder="confirm password" name="password2" id="{{ register_form.password2.id_for_label }}"/>
+      <button type="submit" value="Register">create</button>
       <p class="message">Already registered? <a href="#">Sign In</a></p>
     </form>
-    <form class="login-form">
-      <input type="text" placeholder="username"/>
-      <input type="password" placeholder="password"/>
-      <button>login</button>
+    <form class="login-form" action="/mycritic_app/login/" method="post">{% csrf_token %}
+	  {{ message }}
+	  {{ login_form.username.errors }}
+	  <label for="{{ login_form.username.id_for_label }}"></label>
+      <input type="text" placeholder="username" name="username" id="{{ login_form.username.id_for_label }}"/>
+	  {{ login_form.password.errors }}
+	  <label for="{{ login_form.password.id_for_label }}"></label>
+      <input type="password" placeholder="password" name="password" for="{{ login_form.password.id_for_label }}"/>
+      <button type="submit" value="login">login</button>
       <p class="message">Not registered? <a href="#">Create an account.</a></p>
     </form>
   </div>

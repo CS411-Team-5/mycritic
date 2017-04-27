@@ -17,28 +17,31 @@ tmdb.API_KEY = os.environ['TMDB_KEY']
 
 def register(request):
     if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
+        register_form = RegistrationForm(request.POST)
+        if register_form.is_valid():
+            register_form.save()
             return HttpResponseRedirect('/mycritic_app/register/complete')
 
     else:
-        form = RegistrationForm()
+        register_form = RegistrationForm()
+    login_form = LoginForm()
     token = {}
     token.update(csrf(request))
-    token['form'] = form
+    token['register_form'] = register_form
+    token['login_form'] = login_form
+    token['login'] = False
 
-    return render_to_response('registration/registration_form.html', token)
+    return render_to_response('registration/login2.html', token)
 
 def registration_complete(request):
     
     return render_to_response('registration/registration_complete.html')
 
 def login(request):
-    message = None
+    message = ""
     if request.method == "POST":
-        form = LoginForm(request.POST)
-        if form.is_valid():
+        login_form = LoginForm(request.POST)
+        if login_form.is_valid():
             username = request.POST['username']
             password = request.POST['password']
             user = auth.authenticate(username=username, password=password)
@@ -51,8 +54,9 @@ def login(request):
             else:
                 message = "Invalid username and/or password, please reenter"
     else:
-        form = LoginForm()
-    return render(request, 'registration/login.html', {'message': message, 'form': form})
+        login_form = LoginForm()
+    register_form = RegistrationForm()
+    return render(request, 'registration/login2.html', {'message': message, 'login_form': login_form, 'register_form': register_form, 'login': True})
     
 def logged_in(request):
     return render_to_response('registration/logged_in.html',
