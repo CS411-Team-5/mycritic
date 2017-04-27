@@ -5,11 +5,10 @@ from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context_processors import csrf
 from django.contrib import auth
-from mycritic_app.models import SearchCache
+from mycritic_app.models import *
 from mycritic_app.forms import RegistrationForm, LoginForm
 
 tmdb.API_KEY = os.environ['TMDB_KEY']
-
 
 ##########################
 # REGISTRATION AND LOGIN #
@@ -134,5 +133,3 @@ def result(request):
             'result.html',
             context={'query': query, 'response':response, 'clean_response':clean_response, 'verbose':verbose, 'source':'TMDB'},
         )
-
-
