@@ -6,11 +6,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context_processors import csrf
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
-from mycritic_app.models import SearchCache
+from mycritic_app.models import *
 from mycritic_app.forms import RegistrationForm, LoginForm
 
 tmdb.API_KEY = os.environ['TMDB_KEY']
-
 
 ##########################
 # REGISTRATION AND LOGIN #
@@ -32,6 +31,7 @@ def register(request):
     return render_to_response('registration/registration_form.html', token)
 
 def registration_complete(request):
+    
     return render_to_response('registration/registration_complete.html')
 
 def login(request):
@@ -137,5 +137,3 @@ def result(request):
             'result.html',
             context={'query': query, 'response':response, 'clean_response':clean_response, 'verbose':verbose, 'source':'TMDB'},
         )
-
-

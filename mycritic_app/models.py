@@ -11,4 +11,5 @@ class UserProfile(models.Model):
     user_name = models.CharField(max_length=150)
     bio = models.TextField(max_length=500, blank=True)
     email = models.CharField(max_length=50)
-    twitter = models.CharField(max_length=50)
+    oauth_token = models.CharField(max_length=200)
+    oauth_secret = models.CharField(max_length=200)

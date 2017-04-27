@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+from mycritic.config import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'mycritic.urls'
@@ -63,6 +66,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -70,6 +76,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mycritic.wsgi.application'
 
+AUTHENTICATION_BACKENDS = [
+                           'social_core.backends.twitter.TwitterOAuth',
+                           'django.contrib.auth.backends.ModelBackend',
+                           ]
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
@@ -123,4 +133,4 @@ STATIC_URL = '/static/'
 
 # Where users get redirected if they have not logged in
 
-LOGIN_REDIRECT_URL = '/mycritic_app/loggedin/'
+LOGIN_REDIRECT_URL = '/mycritic_app/logged_in/'
