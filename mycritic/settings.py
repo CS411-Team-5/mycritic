@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
-from mycritic.config import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -40,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'social_django',
+    'twython_django_oauth',
+                  
 ]
 
 MIDDLEWARE = [
@@ -73,6 +74,12 @@ TEMPLATES = [
         },
     },
 ]
+
+SOCIAL_AUTH_TWITTER_KEY = 'rFGT3DYe8cpfD0B6BguZ8ilHh'
+SOCIAL_AUTH_TWITTER_SECRET = 'vZXN95NRIFaR9W3o4ES3qQUvH907JvKucvR5FAB7yoFjQfUF2q'
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/mycritic_app/login'
+SOCIAL_AUTH_LOGOUT_REDIRECT_URL = '/mycritic_app/login'
+SOCIAL_AUTH_RAISE_EXCEPTIONS = True
 
 WSGI_APPLICATION = 'mycritic.wsgi.application'
 

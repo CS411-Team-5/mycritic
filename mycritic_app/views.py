@@ -7,6 +7,7 @@ from django.template.context_processors import csrf
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from mycritic_app.models import *
+from mycritic.settings import *
 from mycritic_app.forms import RegistrationForm, LoginForm
 
 tmdb.API_KEY = os.environ['TMDB_KEY']
@@ -155,3 +156,60 @@ def result(request):
             'result.html',
             context={'username': username, 'query': query, 'response':response, 'clean_response':clean_response, 'verbose':verbose, 'source':'TMDB'},
         )
+
+###########
+# TWITTER #
+###########
+
+def begin_auth(request):
+    """The view function that initiates the entire handshake.
+    For the most part, this is 100% drag and drop.
+    """
+    # Instantiate Twython with the first leg of our trip.
+    twitter = Twython(settings.SOCIAL_AUTH_TWITTER_KEY, settings.SOCIAL_AUTH_TWITTER_SECRET)
+
+    # Request an authorization url to send the user to...
+    callback_url = request.build_absolute_uri(reverse('twython_django_oauth.views.thanks'))
+    auth_props = twitter.get_authentication_tokens(callback_url)
+
+    request.session['request_token'] = auth_props
+
+    request.session['next_url'] = request.GET.get('next',None)
+
+    return HttpResponseRedirect(auth_props['auth_url'])
+
+
+def thanks(request, redirect_url=SOCIAL_AUTH_LOGOUT_REDIRECT_URL):
+    """A user gets redirected here after hitting Twitter and authorizing your app to use their data.
+    This is the view that stores the tokens you want
+    for querying data. Pay attention to this.
+    """
+    # Now that we've got the magic tokens back from Twitter, we need to exchange
+    # for permanent ones and store them...
+    oauth_token = request.session['request_token']['oauth_token']
+    oauth_token_secret = request.session['request_token']['oauth_token_secret']
+    twitter = Twython(settings.SOCIAL_AUTH_TWITTER_KEY, settings.SOCIAL_AUTH_TWITTER_SECRET, oauth_token, oauth_token_secret)
+
+    # Retrieve the tokens we want...
+    authorized_tokens = twitter.get_authorized_tokens(request.GET['oauth_verifier'])
+
+    # If they already exist, grab them, login and redirect to a page displaying stuff.
+    try:
+        user = User.objects.get(username=authorized_tokens['screen_name'])
+    except User.DoesNotExist:
+        # We mock a creation here; no email, password is just the token, etc.
+        user = User.objects.create_user(authorized_tokens['screen_name'], "notreal@email.com", authorized_tokens['oauth_token_secret'])
+        profile = UserProfile()
+        profile.user = user
+        profile.oauth_token = authorized_tokens['oauth_token']
+        profile.oauth_secret = authorized_tokens['oauth_token_secret']
+        profile.save()
+
+        user = authenticate(
+                            username=authorized_tokens['screen_name'],
+                            password=authorized_tokens['oauth_token_secret']
+                            )
+        login(request, user)
+        redirect_url = request.session.get('next_url', redirect_url)
+
+        HttpResponseRedirect(redirect_url)
