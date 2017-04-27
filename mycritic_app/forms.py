@@ -12,6 +12,7 @@ class RegistrationForm(UserCreationForm):
     def save(self, commit=True):
         user = super(RegistrationForm, self).save(commit=False)
         user.email = self.cleaned_data['email']
+        user.movies_rated = 0
         
         if commit:
             user.save()

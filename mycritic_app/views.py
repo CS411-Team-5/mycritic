@@ -16,6 +16,8 @@ tmdb.API_KEY = os.environ['TMDB_KEY']
 ##########################
 
 def register(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect('/mycritic_app/logged_in')
     if request.method == 'POST':
         register_form = RegistrationForm(request.POST)
         if register_form.is_valid():
@@ -31,13 +33,15 @@ def register(request):
     token['login_form'] = login_form
     token['login'] = False
 
-    return render_to_response('registration/login2.html', token)
+    return render_to_response('registration/login.html', token)
 
 def registration_complete(request):
     
     return render_to_response('registration/registration_complete.html')
 
 def login(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect('/mycritic_app/logged_in')
     message = ""
     if request.method == "POST":
         login_form = LoginForm(request.POST)
@@ -56,9 +60,12 @@ def login(request):
     else:
         login_form = LoginForm()
     register_form = RegistrationForm()
-    return render(request, 'registration/login2.html', {'message': message, 'login_form': login_form, 'register_form': register_form, 'login': True})
+    return render(request, 'registration/login.html', {'message': message, 'login_form': login_form, 'register_form': register_form, 'login': True})
     
 def logged_in(request):
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    if profile.movies_rated < 5:
+        return HttpResponseRedirect('/mycritic_app/search')
     return render_to_response('registration/logged_in.html',
                               {'username': request.user.username})
 
@@ -98,12 +105,18 @@ def fetch_tmdb(string):
 def search(request):
     """
     View function for search page of site.
-    """    
+    """
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    need_to_rate = False
+    username = request.user.username
+    rated = profile.movies_rated
+    if rated < 5:
+        need_to_rate = True
     # Render the HTML template search.html with the data in the context variable
     return render(
         request,
         'search.html',
-        context={},
+        context={'username': username, 'need_to_rate': need_to_rate, 'movies_to_rate': (5 - rated)},
     )
 
 @login_required(login_url='/mycritic_app/login/')

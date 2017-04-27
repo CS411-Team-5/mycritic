@@ -2,6 +2,7 @@
 
 {% block content %}
 <style>
+@import url(https://fonts.googleapis.com/css?family=Roboto:300);
 div {
   position:absolute;
   color:#fff;
@@ -20,12 +21,21 @@ img {
 	width: 50%;
 	display:block;
 }
+p {
+	font-family: "Roboto", sans-serif;
+	font-size:140%;
+	text-align:center;
+}
 </style>
 <div>
 	{% load static %}
 	<img src="{% static 'images/mycriticlogo.png' %}" alt="mycritic_logo"/>
-	  
-	  <form method="get" action="/mycritic_app/search" id="search">
+{% if need_to_rate %}
+	  <p><strong>Hey there, {{ username }}!</strong></p>
+      <p>Before we show you recommendations, you'll have to rate at least <strong>{{ movies_to_rate }}</strong> more movies.</p>
+{% endif %}
+      <br>
+	  <form method="get" action="/mycritic_app/result" id="search">
 		<input name="q" type="text" size="40" placeholder="Search for a movie..." />
 	  </form>
 </div>
