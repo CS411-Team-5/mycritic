@@ -30,8 +30,12 @@ class UserProfile(models.Model):
 
 class MovieManager(models.Manager):
 
-    def create_movie(self, iden, title, poster, description):
-        new_movie = self.update_or_create(identifier=iden, title=title, poster=poster, description=description)
+    def create_movie(self, iden, title, poster, description, genres):
+        new_movie = self.update_or_create(identifier=iden,
+                                          title=title,
+                                          poster=poster,
+                                          description=description,
+                                          genre_list=str(genres))
         return new_movie
 
 class Movie(models.Model):
@@ -39,6 +43,7 @@ class Movie(models.Model):
     title = models.CharField(max_length=100)
     poster = models.CharField(max_length=50)
     description = models.TextField()
+    genre_list = models.TextField(default='[]')
 
     objects = MovieManager()
 

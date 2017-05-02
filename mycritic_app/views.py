@@ -94,12 +94,14 @@ def fetch_tmdb(string):
             clean_response += [[result['id'],
                                 result['title'],
                                 "http://image.tmdb.org/t/p/w342" + result['poster_path'],
-                                result['overview']]]
+                                result['overview'],
+                                result['genre_ids']]]
         else:
             clean_response += [[result['id'],
                                 result['title'],
                                 "http://i.imgur.com/fVlnrIS.jpg",
-                                result['overview']]]
+                                result['overview'],
+                                result['genre_ids']]]
     return (response, clean_response)
 
 @login_required(login_url='/mycritic_app/login/')
@@ -148,11 +150,11 @@ def result(request):
             tup = fetch_tmdb(query)
             response = tup[0]
             clean_response = tup[1]
-            print(response)
+            #print(response)
             verbose = ""
             for movie in clean_response:
                 verbose += str(movie) + "\n\n"
-                db_movie = Movie.objects.create_movie(movie[0], movie[1], movie[2], movie[3])
+                db_movie = Movie.objects.create_movie(movie[0], movie[1], movie[2], movie[3], movie[4])
 
             # Put the search response into our local database
             obj = SearchCache.objects.create(search_query=query, value=str(clean_response)) #####
