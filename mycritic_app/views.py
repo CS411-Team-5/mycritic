@@ -38,7 +38,7 @@ def register(request):
 
 def registration_complete(request):
     
-    return render_to_response('registration/registration_complete.html')
+    return HttpResponseRedirect('/mycritic_app')
 
 def login(request):
     if request.user.is_authenticated():
@@ -372,5 +372,45 @@ def register_profile(request):
 
 @login_required
 def profile_page(request):
-    user = get_object_or_404(User, username=UserProfile.username)
-    return render(request, '/profile.html', {'UserProfile': user})
+    user = get_object_or_404(User, username=request.user)
+
+    # Below is the code to re-evaluate the user similarity scores for this user.
+    username = request.user.username
+    user_scores = {}
+    movies_rated = Rating.objects.filter(user_id=username)
+    ratings = [(r.movie_id, r.rating) for r in movies_rated]
+    if len(ratings) != 0:
+        for tup in ratings:
+            other_users_ratings = Rating.objects.filter(movie_id=int(tup[0])).exclude(user_id=username)
+            for other_user in other_users_ratings:
+                diff = abs(tup[1] - other_user.rating)
+                if diff <= 2.5: # Users are in agreement
+                    diff = 2.5 - diff
+                else: # Users are in disagreement
+                    diff = -(diff - 2.5)
+
+                # Save the resulting 'score' in the user_scores
+                if other_user.user_id not in user_scores:
+                    user_scores[other_user.user_id] = (diff, 1)
+                else:
+                    orig = user_scores[other_user.user_id][0]
+                    count = user_scores[other_user.user_id][1]
+                    user_scores[other_user.user_id] = (orig + diff, count + 1)
+                print("Updated against user: " + other_user.user_id)
+    profile = UserProfile.objects.filter(user=request.user).update(similarity_scores=str(user_scores))
+    profile = UserProfile.objects.get(user=request.user)
+    sim_scores = eval(profile.similarity_scores)
+
+    sim_scores_clean = []
+    for key in sim_scores:
+        res = sim_scores[key]
+        sim_scores_clean += [(key, res[0], res[1])]
+
+    sim_scores_nactive = False
+    if len(sim_scores_clean) == 0:
+        sim_scores_nactive = True
+    
+    return render(request, 'profile.html', {'UserProfile': user,
+                                            'sim_scores': sim_scores_clean,
+                                            'sim_scores_nactive': sim_scores_nactive,
+                                            'username': request.user.username})
