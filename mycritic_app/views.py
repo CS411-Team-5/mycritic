@@ -1,7 +1,7 @@
 import tmdbsimple as tmdb
 import os
 
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render, render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context_processors import csrf
 from django.contrib.auth.decorators import login_required
@@ -277,3 +277,26 @@ def thanks(request, redirect_url=SOCIAL_AUTH_LOGOUT_REDIRECT_URL):
         redirect_url = request.session.get('next_url', redirect_url)
 
         HttpResponseRedirect(redirect_url)
+
+###########
+# PROFILE #
+###########
+
+#profile page using user name as url
+def register_profile(request):
+    profile = UserProfile.objects.get(user=request.user)
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return index(request)
+        else:
+            print (form.errors)
+    else:
+        form = UserProfileForm()
+    return render(request, '/register/complete/$.html', {'form': form})
+
+@login_required
+def profile_page(request):
+    user = get_object_or_404(User, username=UserProfile.username)
+    return render(request, '/profile.html', {'UserProfile': user})

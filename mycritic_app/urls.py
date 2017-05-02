@@ -6,6 +6,7 @@ from . import views
 urlpatterns = [
     url(r'^result/', views.result, name='result'),
     url(r'^search/$', views.search, name='search'),
+    url(r'^profile/', views.profile_page, name='profile'),
     # Registration URLs
     url(r'^register/$', views.register, name='register'),
     url(r'^register/complete/$', views.registration_complete, name='registration_complete'),

@@ -11,6 +11,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     username = models.CharField(max_length=150)
     movies_rated = models.PositiveIntegerField(default=0)
+    #profile_photo = models.CharField()
     email = models.CharField(max_length=50)
     oauth_token = models.CharField(max_length=200)
     oauth_secret = models.CharField(max_length=200)
