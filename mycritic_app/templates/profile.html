@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}mycritic - Profile{% endblock %}
+{% block content %}
+
+<script type="text/javascript">
+    function saveEdits() {
+        
+        //get the editable element
+        var editElem = document.getElementById("edit");
+        
+        //get the edited element content
+        var userVersion = editElem.innerHTML;
+        
+        //save the content to local storage
+        localStorage.userEdits = userVersion;
+        
+        //write a confirmation to the user
+        document.getElementById("update").innerHTML="Edits saved!";
+        
+    }
+
+    function checkEdits() {
+    
+    //find out if the user has previously saved edits
+    if(localStorage.userEdits!=null)
+    document.getElementById("edit").innerHTML = localStorage.userEdits;
+    }
+</script>
+
+<style>
+    body {
+        background-color: #4286f4;
+    }
+.body-section h1 {
+    margin:5px;
+    color: #FFBA73;
+    font-size: 300%;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+h2 {
+    font-size:18px;
+    margin-bottom:20px;
+    color: #FFF;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+#logo {
+    margin-top:20px;
+    margin-left:10px;
+    padding:0px;
+    height: auto;
+    width: 20%;
+    display:block;
+}
+button.btn-info {
+    margin:5px;
+}
+div.collapse {
+    margin:0px;
+}
+div.expand-area {
+    margin:10px;
+}
+div.result-container {
+    margin:10px;
+}
+div.back-button {
+    margin:10px;
+}
+#movie-poster {
+    max-height:auto;
+    width:100%;
+}
+#info {
+    margin:2px;
+}
+#content {
+    margin:10px;
+    overflow:auto;
+    width: 98%;
+    -moz-border-radius:10px;
+    -webkit-border-radius:10px;
+    border-radius:10px;
+    background: #fff; /* fallback for browsers that don't understand rgba */
+    border: #solid 10px #000; /* fallback for browsers that don't understand rgba */
+    background-color: rgba(255,255,255,0.8);/* slighly transparent white */
+    border-color: rgba(0,0,0,0.2); /*Very transparent black*/
+}
+#left, #right {
+    margin:6px;
+    padding: 1px;
+}
+#left {
+    float:left;
+    width:16%
+}
+#right {
+    float:right;
+    width:82%
+}
+#description {
+    margin:5px;
+    font-size: 140%;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}		 
+
+    </style>
+
+<body onload="checkEdits()">
+<div class="container">
+    <div class="span3 well">
+        <center>
+            <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="mycritic_app.static.images.mycriticlogo.png" name="aboutme" width="140" height="140" class="img-circle"></a>
+            <h3>{{username}}</h3>
+            <em>Click face for more</em>
+        </center>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title" id="myModalLabel">More About {{username}}</h4>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        <img src="mycritic_app.static.images.mycriticlogo.png" name="aboutme" width="140" height="140" border="0" class="img-circle"></a>
+                            <h3 class="media-heading">{{username}} <small>Reviewer</small></h3>
+                            <span><strong>Rated Movies: </strong></span>
+                            <span class="label label-info"> {{movies_rated}}</span>
+                            </center>
+                    <hr>
+                    <center>
+                        <p class="text-left"><strong>Bio: </strong><br>
+                        <div id="edit" contenteditable="true">
+                            Edit your bio here!
+                        </div>
+                        <input type="button" value="Save" onclick="saveEdits()"/>
+                        <div id="update"> - Edit the text and click to save for next time</div>
+                        <br>
+                    </center>
+                </div>
+                <div class="modal-footer">
+                    <center>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </center>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+{% endblock %}

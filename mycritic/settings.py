@@ -140,7 +140,7 @@ STATIC_URL = '/static/'
 
 # Where users get redirected if they have not logged in
 
-LOGIN_REDIRECT_URL = '/mycritic_app/logged_in/'
+LOGIN_REDIRECT_URL = '/mycritic_app/home/'
 
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
