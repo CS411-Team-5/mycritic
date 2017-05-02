@@ -11,10 +11,10 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     username = models.CharField(max_length=150)
     movies_rated = models.PositiveIntegerField(default=0)
-    bio = models.TextField(max_length=500, blank=True)
     email = models.CharField(max_length=50)
     oauth_token = models.CharField(max_length=200)
     oauth_secret = models.CharField(max_length=200)
+    similarity_scores = models.TextField(blank=True)
 
     def add_rating():
         movies_rated += 1
@@ -68,6 +68,30 @@ class RatingManager(models.Manager):
         else:
             new_rating = self.create(user_id=user, movie_id=int(movie), rating=num_rating)
             profile = UserProfile.objects.filter(user=user_auth).update(movies_rated = F('movies_rated') + 1)
+
+        # Below is the code to re-evaluate the user similarity scores for this user.
+        user_scores = {}
+        movies_rated = self.filter(user_id=user)
+        ratings = [(r.movie_id, r.rating) for r in movies_rated]
+        if len(ratings) != 0:
+            for tup in ratings:
+                other_users_ratings = self.filter(movie_id=int(tup[0])).exclude(user_id=user)
+                for other_user in other_users_ratings:
+                    diff = abs(tup[1] - other_user.rating)
+                    if diff <= 2.5: # Users are in agreement
+                        diff = 2.5 - diff
+                    else: # Users are in disagreement
+                        diff = -(diff - 2.5)
+
+                    # Save the resulting 'score' in the user_scores
+                    if other_user.user_id not in user_scores:
+                        user_scores[other_user.user_id] = (diff, 1)
+                    else:
+                        orig = user_scores[other_user.user_id][0]
+                        count = user_scores[other_user.user_id][1]
+                        user_scores[other_user.user_id] = (orig + diff, count + 1)
+                    print("Updated against user: " + other_user.user_id)
+        profile = UserProfile.objects.filter(user=user_auth).update(similarity_scores=str(user_scores))
 
         return new_rating
 
