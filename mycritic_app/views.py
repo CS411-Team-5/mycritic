@@ -8,8 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from mycritic_app.models import *
 from mycritic.settings import *
-from mycritic_app.forms import RegistrationForm, LoginForm, RatingForm
-from django.db.models import F
+from mycritic_app.forms import *
 
 tmdb.API_KEY = os.environ['TMDB_KEY']
 
@@ -128,8 +127,7 @@ def result(request):
     """
     
     if request.method == "POST":
-        profile = UserProfile.objects.filter(user=request.user).update(movies_rated = F('movies_rated') + 1)
-        rating_form = RatingForm(request.POST)
+        rating = Rating.objects.create_rating(request.POST['user_id'], request.POST['movie_id'], request.POST['rating'], request.user)
         return HttpResponseRedirect('/mycritic_app/logged_in')
     else:
         username = request.user.username
@@ -150,10 +148,11 @@ def result(request):
             tup = fetch_tmdb(query)
             response = tup[0]
             clean_response = tup[1]
+            print(response)
             verbose = ""
             for movie in clean_response:
                 verbose += str(movie) + "\n\n"
-                db_movie = Movie.create(Movie, movie[0], movie[1], movie[2], movie[3])
+                db_movie = Movie.objects.create_movie(movie[0], movie[1], movie[2], movie[3])
 
             # Put the search response into our local database
             obj = SearchCache.objects.create(search_query=query, value=str(clean_response)) #####
