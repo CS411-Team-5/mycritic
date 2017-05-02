@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}mycritic - Home{% endblock %}
+{% block content %}
+<style>
+@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
+body {
+	background-color: #4286f4;
+}
+.body-section h1 {
+	margin:5px;
+	color: #FFBA73;
+	font-size: 300%;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+.body-section p {
+	color: #000;
+}
+h2 {
+	font-size:18px;
+	margin-bottom:20px;
+	color: #FFF;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+#logo {
+	margin-top:20px;
+	margin-left:10px;
+    padding:0px;
+	height: auto;
+	width: 20%;
+	display:block;
+}
+button.btn-info {
+	margin:5px;
+}
+div.collapse {
+	margin:0px;
+}
+div.expand-area {
+	margin:10px;
+}
+div.result-container {
+	margin:10px;
+}
+div.back-button {
+	margin:10px;
+}
+#movie-poster {
+	max-height:auto;
+	width:100%;
+}
+#info {
+	margin:2px;
+}
+#content { 
+  margin:10px;
+  overflow:auto; 
+  width: 98%; 
+  -moz-border-radius:10px;
+  -webkit-border-radius:10px;
+  border-radius:10px;
+  background: #fff; /* fallback for browsers that don't understand rgba */
+  border: #solid 10px #000; /* fallback for browsers that don't understand rgba */
+  background-color: rgba(255,255,255,0.8);/* slighly transparent white */
+  border-color: rgba(0,0,0,0.2); /*Very transparent black*/
+} 
+#left, #right { 
+  margin:6px; 
+  padding: 1px; 
+} 
+#left { 
+	float:left;
+	width:16%
+}
+#right { 
+	float:right;
+    width:82% 
+} 
+#description {
+	margin:5px;
+	font-size: 140%;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+/****** Style Star Rating Widget *****/
+
+.rating { 
+  border: none;
+  float: left;
+}
+
+.rating > input { display: none; } 
+.rating > label:before { 
+  margin: 5px;
+  font-size: 2em;
+  font-family: FontAwesome;
+  display: inline-block;
+  content: "\f005";
+}
+
+.rating > .half:before { 
+  content: "\f089";
+  position: absolute;
+}
+
+.rating > label { 
+  color: #aaa; 
+ float: right; 
+}
+
+/***** CSS Magic to Highlight Stars on Hover *****/
+
+.rating > input:checked ~ label, /* show gold star when clicked */
+.rating:not(:checked) > label:hover, /* hover current star */
+.rating:not(:checked) > label:hover ~ label { color: #FFD700;  } /* hover previous stars in list */
+
+.rating > input:checked + label:hover, /* hover current star when changing rating */
+.rating > input:checked ~ label:hover,
+.rating > label:hover ~ input:checked ~ label, /* lighten current selection */
+.rating > input:checked ~ label:hover ~ label { color: #FFED85;  } 
+
+</style>
+<div class="result-container">
+	<h1>Alright, {{ username }}</h1>
+	<h2>Here's a few recommendations from users with similar tastes:</h2>
+</div>
+{% for movie in user_movies %}
+<div id="content">
+  <div id="left">
+     <div id="poster"><img id="movie-poster" src="{{ movie.2 }}", alt="{{ movie.2 }}"/></div>
+  </div>
+
+  <div id="right">
+     <div id="info">
+		<h1>{{ movie.1 }}</h1>
+		</br>
+		<p id="description">{{ movie.3 }}<p>
+		</br>
+		<p>Rate this movie:</p>
+		<form action="/mycritic_app/" method="post">{% csrf_token %}
+			<fieldset class="rating">
+				<input type="hidden" name="user_id" value="{{ username }}" />
+				<input type="hidden" name="movie_id" value="{{ movie.0 }}" />
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star5" name="rating" value="5" /><label class = "full" for="{{movie.1}}star5" title="Awesome - 5 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star4half" name="rating" value="4 and a half" /><label class="half" for="{{movie.1}}star4half" title="Pretty good - 4.5 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star4" name="rating" value="4" /><label class = "full" for="{{movie.1}}star4" title="Pretty good - 4 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star3half" name="rating" value="3 and a half" /><label class="half" for="{{movie.1}}star3half" title="Meh - 3.5 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star3" name="rating" value="3" /><label class = "full" for="{{movie.1}}star3" title="Meh - 3 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star2half" name="rating" value="2 and a half" /><label class="half" for="{{movie.1}}star2half" title="Kinda bad - 2.5 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star2" name="rating" value="2" /><label class = "full" for="{{movie.1}}star2" title="Kinda bad - 2 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star1half" name="rating" value="1 and a half" /><label class="half" for="{{movie.1}}star1half" title="Meh - 1.5 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star1" name="rating" value="1" /><label class = "full" for="{{movie.1}}star1" title="Sucks big time - 1 star"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}starhalf" name="rating" value="half" /><label class="half" for="{{movie.1}}starhalf" title="Sucks big time - 0.5 stars"></label>
+			</fieldset>
+		</form>
+	</div>
+  </div>
+</div>
+</br>
+{% endfor %}
+
+</br>
+<div class="back-button">
+<a class="btn btn-warning btn-lg" href="{% url 'search' %}" style="font-size:18px;"><< Go Back to Search</button>
+</div>
+{% endblock %}
+</div>

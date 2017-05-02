@@ -18,7 +18,7 @@ tmdb.API_KEY = os.environ['TMDB_KEY']
 
 def register(request):
     if request.user.is_authenticated():
-        return HttpResponseRedirect('/mycritic_app/logged_in')
+        return HttpResponseRedirect('/mycritic_app')
     if request.method == 'POST':
         register_form = RegistrationForm(request.POST)
         if register_form.is_valid():
@@ -42,7 +42,7 @@ def registration_complete(request):
 
 def login(request):
     if request.user.is_authenticated():
-        return HttpResponseRedirect('/mycritic_app/logged_in')
+        return HttpResponseRedirect('/mycritic_app')
     message = ""
     if request.method == "POST":
         login_form = LoginForm(request.POST)
@@ -53,7 +53,7 @@ def login(request):
             if user is not None:
                 if user.is_active:
                     auth.login(request, user)
-                    return HttpResponseRedirect('/mycritic_app/logged_in')
+                    return HttpResponseRedirect('/mycritic_app')
                 else:
                     message = "Your account is inactive"
             else:
@@ -62,13 +62,68 @@ def login(request):
         login_form = LoginForm()
     register_form = RegistrationForm()
     return render(request, 'registration/login.html', {'message': message, 'login_form': login_form, 'register_form': register_form, 'login': True})
-    
+
+@login_required(login_url='/mycritic_app/login/')
 def logged_in(request):
     profile, created = UserProfile.objects.get_or_create(user=request.user)
     if profile.movies_rated < 5:
         return HttpResponseRedirect('/mycritic_app/search')
-    return render_to_response('registration/logged_in.html',
-                              {'username': request.user.username})
+    if request.method == "POST":
+        rating = Rating.objects.create_rating(request.POST['user_id'], request.POST['movie_id'], request.POST['rating'], request.user)
+        return HttpResponseRedirect('/mycritic_app')
+    # Below is the code to re-evaluate the user similarity scores for this user.
+    username = request.user.username
+    user_scores = {}
+    movies_rated = Rating.objects.filter(user_id=username)
+    ratings = [(r.movie_id, r.rating) for r in movies_rated]
+    if len(ratings) != 0:
+        for tup in ratings:
+            other_users_ratings = Rating.objects.filter(movie_id=int(tup[0])).exclude(user_id=username)
+            for other_user in other_users_ratings:
+                diff = abs(tup[1] - other_user.rating)
+                if diff <= 2.5: # Users are in agreement
+                    diff = 2.5 - diff
+                else: # Users are in disagreement
+                    diff = -(diff - 2.5)
+
+                # Save the resulting 'score' in the user_scores
+                if other_user.user_id not in user_scores:
+                    user_scores[other_user.user_id] = (diff, 1)
+                else:
+                    orig = user_scores[other_user.user_id][0]
+                    count = user_scores[other_user.user_id][1]
+                    user_scores[other_user.user_id] = (orig + diff, count + 1)
+                print("Updated against user: " + other_user.user_id)
+    profile = UserProfile.objects.filter(user=request.user).update(similarity_scores=str(user_scores))
+
+    # Now actually get the info for similar movies
+    already_rated = []
+    user_movies = []
+    profile = UserProfile.objects.get(user=request.user)
+    sim_scores = eval(profile.similarity_scores)
+
+    for other_user in sim_scores:
+        if sim_scores[other_user][0] / sim_scores[other_user][1] >= 1.0:
+            other_rated = Rating.objects.filter(user_id=other_user).exclude(user_id=username)
+            other_ratings = [(r.movie_id, r.rating) for r in other_rated]
+            for rating in other_ratings:
+                dupe = False
+                for user_rating in ratings:
+                    if rating[0] == user_rating[0]:
+                        dupe = True
+                        break
+                if rating[0] not in already_rated and rating[1] >= 4.0 and dupe == False:
+                    already_rated += [rating[0]]
+                    movie = Movie.objects.get(identifier=int(rating[0]))
+                    user_movies += [[movie.identifier,
+                                     movie.title,
+                                     movie.poster,
+                                     movie.description,
+                                     movie.genre_list]]
+    
+    return render(request,
+                  'home.html',
+                  context={'username': request.user.username, 'user_movies': user_movies})
 
 def login_error(request):
     return render_to_response('registration/login_error.html')
@@ -130,7 +185,7 @@ def result(request):
     
     if request.method == "POST":
         rating = Rating.objects.create_rating(request.POST['user_id'], request.POST['movie_id'], request.POST['rating'], request.user)
-        return HttpResponseRedirect('/mycritic_app/logged_in')
+        return HttpResponseRedirect('/mycritic_app')
     else:
         username = request.user.username
         query = request.GET.urlencode('search')[2:]
