@@ -119,18 +119,19 @@ div.back-button {
 .rating > input:checked ~ label:hover ~ label { color: #FFED85;  } 
 
 </style>
+{% if user_movies_active %}
 <div class="result-container">
-	<h1>Alright, {{ username }}</h1>
-	<h2>Here's a few recommendations from users with similar tastes:</h2>
+		<h1>Okay, {{ username }}</h1>
+		<h2>Here's a few recommendations from users with similar tastes:</h2>
 </div>
 {% for movie in user_movies %}
 <div id="content">
   <div id="left">
-     <div id="poster"><img id="movie-poster" src="{{ movie.2 }}", alt="{{ movie.2 }}"/></div>
+	 <div id="poster"><img id="movie-poster" src="{{ movie.2 }}", alt="{{ movie.2 }}"/></div>
   </div>
 
   <div id="right">
-     <div id="info">
+	 <div id="info">
 		<h1>{{ movie.1 }}</h1>
 		</br>
 		<p id="description">{{ movie.3 }}<p>
@@ -157,10 +158,46 @@ div.back-button {
 </div>
 </br>
 {% endfor %}
-
 </br>
-<div class="back-button">
-<a class="btn btn-warning btn-lg" href="{% url 'search' %}" style="font-size:18px;"><< Go Back to Search</button>
+{% endif %}
+
+{% if genre_movies_active %}
+<div class="result-container">
+		<h2>Here's a few recommendations based on your interest in the {{ genre }} genre:</h2>
 </div>
+{% for movie in genre_movies %}
+<div id="content">
+  <div id="left">
+	 <div id="poster"><img id="movie-poster" src="{{ movie.2 }}", alt="{{ movie.2 }}"/></div>
+  </div>
+
+  <div id="right">
+	 <div id="info">
+		<h1>{{ movie.1 }}</h1>
+		</br>
+		<p id="description">{{ movie.3 }}<p>
+		</br>
+		<p>Rate this movie:</p>
+		<form action="/mycritic_app/" method="post">{% csrf_token %}
+			<fieldset class="rating">
+				<input type="hidden" name="user_id" value="{{ username }}" />
+				<input type="hidden" name="movie_id" value="{{ movie.0 }}" />
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star5" name="rating" value="5" /><label class = "full" for="{{movie.1}}star5" title="Awesome - 5 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star4half" name="rating" value="4 and a half" /><label class="half" for="{{movie.1}}star4half" title="Pretty good - 4.5 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star4" name="rating" value="4" /><label class = "full" for="{{movie.1}}star4" title="Pretty good - 4 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star3half" name="rating" value="3 and a half" /><label class="half" for="{{movie.1}}star3half" title="Meh - 3.5 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star3" name="rating" value="3" /><label class = "full" for="{{movie.1}}star3" title="Meh - 3 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star2half" name="rating" value="2 and a half" /><label class="half" for="{{movie.1}}star2half" title="Kinda bad - 2.5 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star2" name="rating" value="2" /><label class = "full" for="{{movie.1}}star2" title="Kinda bad - 2 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star1half" name="rating" value="1 and a half" /><label class="half" for="{{movie.1}}star1half" title="Meh - 1.5 stars"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}star1" name="rating" value="1" /><label class = "full" for="{{movie.1}}star1" title="Sucks big time - 1 star"></label>
+				<input type="radio" onclick="this.form.submit();" id="{{movie.1}}starhalf" name="rating" value="half" /><label class="half" for="{{movie.1}}starhalf" title="Sucks big time - 0.5 stars"></label>
+			</fieldset>
+		</form>
+	</div>
+  </div>
+</div>
+</br>
+{% endfor %}
+{% endif %}
 {% endblock %}
-</div>

@@ -99,6 +99,8 @@ def logged_in(request):
     # Now actually get the info for similar movies
     already_rated = []
     user_movies = []
+    user_movies_active = False
+    genre_movies_active = False
     profile = UserProfile.objects.get(user=request.user)
     sim_scores = eval(profile.similarity_scores)
 
@@ -120,10 +122,61 @@ def logged_in(request):
                                      movie.poster,
                                      movie.description,
                                      movie.genre_list]]
+    if len(user_movies) != 0:
+        user_movies_active = True
+
+    total_genres = []
+    for user_rating in ratings:
+        if user_rating[1] >= 4.0:
+            movie = Movie.objects.get(identifier=int(user_rating[0]))
+            print(user_rating[0])
+            genres = eval(movie.genre_list)
+            total_genres += genres
+    print("total genres:", str(total_genres))
+
+    genre_map = {28: 'Action',
+                 12: 'Adventure',
+                 16: 'Animation',
+                 35: 'Comedy',
+                 80: 'Crime',
+                 99: 'Documentary',
+                 18: 'Drama',
+                 10751: 'Family',
+                 14: 'Fantasy',
+                 36: 'History',
+                 27: 'Horror',
+                 10402: 'Music',
+                 9648: 'Mystery',
+                 10749: 'Romance',
+                 878: 'Science Fiction',
+                 10770: 'TV Movie',
+                 53: 'Thriller',
+                 10752: 'War',
+                 37: 'Western'}
+    
+    genre_type = ""
+    best_genre = None
+    if len(total_genres) != 0:
+        total_genres = [genre for genre in total_genres if genre != 18]
+        best_genre = max(set(total_genres), key=total_genres.count)
+        genre_type = genre_map[best_genre]
+
+    genre_movies = fetch_tmdb_genre(best_genre)
+    for movie in genre_movies:
+        db_movie = Movie.objects.create_movie(movie[0], movie[1], movie[2], movie[3], movie[4])
+
+    if len(genre_movies) != 0:
+        genre_movies_active = True
+    
     
     return render(request,
                   'home.html',
-                  context={'username': request.user.username, 'user_movies': user_movies})
+                  context={'username': request.user.username,
+                           'user_movies_active': user_movies_active,
+                           'genre_movies_active': genre_movies_active,
+                           'user_movies': user_movies,
+                           'genre_movies': genre_movies,
+                           'genre': genre_type})
 
 def login_error(request):
     return render_to_response('registration/login_error.html')
@@ -158,6 +211,27 @@ def fetch_tmdb(string):
                                 result['overview'],
                                 result['genre_ids']]]
     return (response, clean_response)
+
+def fetch_tmdb_genre(genre_id):
+    results = []
+    genre_search = tmdb.Genres(genre_id)
+    genre_search.movies()
+    response = []
+    clean_response = []
+    for result in genre_search.results:
+        if result['poster_path'] is not None:
+            clean_response += [[result['id'],
+                                result['title'],
+                                "http://image.tmdb.org/t/p/w342" + result['poster_path'],
+                                result['overview'],
+                                result['genre_ids']]]
+        else:
+            clean_response += [[result['id'],
+                                result['title'],
+                                "http://i.imgur.com/fVlnrIS.jpg",
+                                result['overview'],
+                                result['genre_ids']]]
+    return clean_response
 
 @login_required(login_url='/mycritic_app/login/')
 def search(request):
