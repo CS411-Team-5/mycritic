@@ -8,7 +8,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from mycritic_app.models import *
 from mycritic.settings import *
-from mycritic_app.forms import RegistrationForm, LoginForm
+from mycritic_app.forms import RegistrationForm, LoginForm, RatingForm
+from django.db.models import F
 
 tmdb.API_KEY = os.environ['TMDB_KEY']
 
@@ -117,7 +118,7 @@ def search(request):
     return render(
         request,
         'search.html',
-        context={'username': username, 'need_to_rate': need_to_rate, 'movies_to_rate': (5 - rated)},
+        context={'user': request.user.id, 'username': username, 'need_to_rate': need_to_rate, 'movies_to_rate': (5 - rated)},
     )
 
 @login_required(login_url='/mycritic_app/login/')
@@ -125,37 +126,44 @@ def result(request):
     """
     View function for search result page of site.
     """
-    username = request.user.username
-    query = request.GET.urlencode('search')[2:]
-    query = query.replace("%20", " ")
-    # If the query is in the database
-    if SearchCache.objects.filter(search_query=query).exists():   #####
-        obj = SearchCache.objects.get(search_query=query)         #####
-        response = eval(obj.value)
-        return render(
-            request,
-            'result.html',
-            context={'username': username, 'query': query, 'response':response, 'clean_response':response, 'verbose':'', 'source':'Local Database'},
-        )
+    
+    if request.method == "POST":
+        profile = UserProfile.objects.filter(user=request.user).update(movies_rated = F('movies_rated') + 1)
+        rating_form = RatingForm(request.POST)
+        return HttpResponseRedirect('/mycritic_app/logged_in')
     else:
+        username = request.user.username
+        query = request.GET.urlencode('search')[2:]
+        query = query.replace("%20", " ")
+        # If the query is in the database
+        if SearchCache.objects.filter(search_query=query).exists():   #####
+            obj = SearchCache.objects.get(search_query=query)         #####
+            response = eval(obj.value)
+            return render(
+                request,
+                'result.html',
+                context={'username': username, 'query': query, 'response':response, 'clean_response':response, 'verbose':'', 'source':'Local Database'},
+            )
+        else:
 
-        # Otherwise fetch it from TMDB
-        tup = fetch_tmdb(query)
-        response = tup[0]
-        clean_response = tup[1]
-        verbose = ""
-        for movie in clean_response:
-            verbose += str(movie) + "\n\n"
+            # Otherwise fetch it from TMDB
+            tup = fetch_tmdb(query)
+            response = tup[0]
+            clean_response = tup[1]
+            verbose = ""
+            for movie in clean_response:
+                verbose += str(movie) + "\n\n"
+                db_movie = Movie.create(Movie, movie[0], movie[1], movie[2], movie[3])
 
-        # Put the search response into our local database
-        obj = SearchCache.objects.create(search_query=query, value=str(clean_response)) #####
-        
-        # Render the HTML template search.html with the data in the context variable
-        return render(
-            request,
-            'result.html',
-            context={'username': username, 'query': query, 'response':response, 'clean_response':clean_response, 'verbose':verbose, 'source':'TMDB'},
-        )
+            # Put the search response into our local database
+            obj = SearchCache.objects.create(search_query=query, value=str(clean_response)) #####
+            
+            # Render the HTML template search.html with the data in the context variable
+            return render(
+                request,
+                'result.html',
+                context={'username': username, 'query': query, 'response':response, 'clean_response':clean_response, 'verbose':verbose, 'source':'TMDB'},
+            )
 
 ###########
 # TWITTER #
